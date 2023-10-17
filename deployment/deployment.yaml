@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ataloud-frontend
+  labels:
+    app: ataloud-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ataloud-frontend
+  template:
+    metadata:
+      labels:
+        app: ataloud-frontend
+    spec:
+      containers:
+      - name: ataloud-frontend
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 8080
