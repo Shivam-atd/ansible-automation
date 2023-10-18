@@ -1,5 +1,4 @@
 ---
-- hosts: all
 - hosts: localhost
 
   collections:
@@ -11,12 +10,19 @@
       kind: Pod
       namespace: aap-app
     register: pod_list
-
+  - name: Clone Deployment Configuration from GitHub
+    git:
+      repo: https://github.com/Ataloud-Projects/ataloudsite.git
+      dest: /var/www/html
+      version: main  # Specify the branch or tag if necessary
+    register: git_clone_result
+    
   - name: create k8s pod
     kubernetes.core.k8s:
       src: deployment/deployment.yaml
       namespace: aap-app
       state: present
+    when: git_clone_result.changed
 
   - name: service create
     kubernetes.core.k8s:
