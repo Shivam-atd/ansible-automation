@@ -10,19 +10,48 @@
       kind: Pod
       namespace: aap-app
     register: pod_list
-  - name: Clone Deployment Configuration from GitHub
+
+  - name: Clone the GitHub repository
     git:
-      repo: https://github.com/Ataloud-Projects/ataloudsite.git
-      dest: /var/www/html
-      version: main  # Specify the branch or tag if necessary
-    register: git_clone_result
-    
+      repo: git@github.com:Ataloud-Projects/ataloudsite.git  # Replace with your GitHub username and repository name
+      dest: /tmp  # Replace with the local path where you want to clone the repository
+      version: test-openshift  # Replace with the specific branch you want to clone
+    environment:
+      GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=no'  # This option disables strict host key checking
+
+  - name: Copy code to the remote host
+    ansible.builtin.copy:
+      src: /tmp/ataloudsite # Source code directory
+      dest: /var/www/html  # Destination directory in the remote host
+
+  - name: Build httpd Docker image
+    community.docker.docker_image:
+      build:
+        path: /tmp/ataloudsite/Dockerfile   # Path to the Dockerfile and context
+      name: test001/httpd:latest  # Name for the Docker image
+
+  - name: Log in to the container registry
+    community.docker.docker_login:
+      registry_url: quay.io
+      username: test001
+      password: $hivam8470
+
+  - name: Push the httpd Docker image
+    community.docker.docker_image_push:
+      name: test001/httpd:latest
+      
+  - name: Make image public
+    command: >
+      curl -H "Authorization: Bearer bzXyNpgsCYC2hM7UA3W0tec1SZzBhqvE6tlfIxY0"
+      -X PUT
+      -d '{"public": true}'
+      https://quay.io/api/v1/repository/test001/httpd:latest
+
   - name: create k8s pod
     kubernetes.core.k8s:
       src: deployment/deployment.yaml
       namespace: aap-app
       state: present
-    when: git_clone_result.changed
 
   - name: service create
     kubernetes.core.k8s:
