@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: ataloud-frontend
-        image: quay.io/test001/httpd:latest
+        image: quay.io/test001/image-$(date +%F):latest
         resources:
           limits:
             memory: "128Mi"
