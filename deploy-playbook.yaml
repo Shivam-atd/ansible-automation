@@ -1,31 +1,60 @@
 ---
-- hosts: all
 - hosts: localhost
-
+  vars:
+    github_repo_url: https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git
+    branch_name: test-openshift
+    date: "{{ lookup('pipe', 'date +%F') }}"
   collections:
-  - kubernetes.core
-
+    - kubernetes.core
   tasks:
-  - name: Get a list of all pods from any namespace
-    kubernetes.core.k8s_info:
-      kind: Pod
-      namespace: aap-app
-    register: pod_list
-
-  - name: create k8s pod
-    kubernetes.core.k8s:
-      src: deployment.yaml
-      namespace: aap-app
-      state: present
-
-  - name: service create
-    kubernetes.core.k8s:
-      src: service.yaml
-      namespace: aap-app
-      state: present
-
-  - name: route create
-    kubernetes.core.k8s:
-      src: route.yaml
-      namespace: aap-app
-      state: present
+    - name: Get a list of all pods from any namespace
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: aap-app
+      register: pod_list
+    - name: Create latest directory
+      shell: mkdir -p /tmp/shivam.{{ date }}
+    - name: permission to directory
+      shell: chmod 777  /tmp/shivam.{{ date }}
+    - name: Clone the repository
+      git:
+        repo: "{{ github_repo_url }}"
+        dest: /tmp/shivam.{{ date }}
+        version: "{{ branch_name }}"
+      register: git_clone_result
+    - name: Print git clone output
+      debug:
+        var: git_clone_result
+    - name: Build httpd Docker image
+      community.docker.docker_image:
+        build:
+          path: /tmp/shivam.{{ date }}
+        name: test001/image-{{ date }}:latest
+    - name: Log in to the container registry
+      community.docker.docker_login:
+        registry_url: quay.io
+        username: test001
+        password: $hivam8470
+    - name: Push the httpd Docker image
+      community.docker.docker_image_push:
+        name: test001/image-{{ date }}:latest
+    - name: Make image public
+      command: >
+        curl -H "Authorization: Bearer
+        bzXyNpgsCYC2hM7UA3W0tec1SZzBhqvE6tlfIxY0" -X PUT -d '{"public": true}'
+        https://quay.io/api/v1/repository/test001/image-{{ date }}:latest
+    - name: create k8s pod
+      kubernetes.core.k8s:
+        src: deployment/deployment.yaml
+        namespace: aap-app
+        state: present
+    - name: service create
+      kubernetes.core.k8s:
+        src: deployment/service.yaml
+        namespace: aap-app
+        state: present
+    - name: route create
+      kubernetes.core.k8s:
+        src: deployment/route.yaml
+        namespace: aap-app
+        state: present
