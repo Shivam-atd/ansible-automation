@@ -1,33 +1,39 @@
 ---
-- name: Install Docker on RHEL
-  hosts: localhost
-  become: yes  # Run tasks with sudo privileges
+- hosts: localhost
+  #gather_facts: no
+  vars:
+    github_repo_url: https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git
+    branch_name: test-openshift
+    date: "{{ lookup('pipe', 'date +%F') }}"
+  collections:
+    - kubernetes.core
   tasks:
-    - name: Install required packages
+    - name: Get a list of all pods from any namespace
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: aap-app
+      register: pod_list
+    - name: Create latest directory
+      shell: mkdir -p /tmp/shivam-{{ date }}
+    - name: permission to directory
+      shell: chmod 777  /tmp/shivam-{{ date }}
+    - name: Clone the repository
+      git:
+        repo: "{{ github_repo_url }}"
+        dest: /tmp/shivam-{{ date }}
+        version: "{{ branch_name }}"
+      register: git_clone_result
+    - name: Print git clone output
+      debug:
+        var: git_clone_result
+    - name: create build directory
+      file:
+        path: /tmp/shivam-{{ date }}
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+    - name: installing podman
       package:
-        name: "{{ item }}"
+        name: "podman"
         state: present
-      loop:
-        - yum-utils
-        - device-mapper-persistent-data
-        - lvm2
-
-    - name: Add Docker repository
-      yum_repository:
-        name: docker-ce
-        description: Docker CE Stable - $basearch
-        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-        gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/centos/gpg
-        enabled: yes
-
-    - name: Install Docker
-      package:
-        name: docker-ce
-        state: present
-
-    - name: Start Docker service and enable it on boot
-      service:
-        name: docker
-        enabled: yes
-        state: started
