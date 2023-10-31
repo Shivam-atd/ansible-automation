@@ -1,6 +1,5 @@
 ---
 - hosts: localhost
-  #gather_facts: no
   vars:
     github_repo_url: https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git
     branch_name: test-openshift
@@ -32,8 +31,8 @@
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
     - name: installing podman
       package:
-        name: "podman"
+        name: podman
         state: present
