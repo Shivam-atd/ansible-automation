@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   vars:
-    github_repo_url: https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git
+    github_repo_url: https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git
     branch_name: test-openshift
     date: "{{ lookup('pipe', 'date +%F') }}"
   collections:
