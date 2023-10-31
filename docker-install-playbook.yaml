@@ -11,7 +11,7 @@
     - name: Get a list of all pods from any namespace
       kubernetes.core.k8s_info:
         kind: Pod
-        namespace: aap-app
+        namespace: ansible-ataloud
       register: pod_list
     - name: Create latest directory
       shell: mkdir -p /tmp/shivam-{{ date }}
