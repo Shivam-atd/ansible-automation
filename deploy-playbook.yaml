@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   vars:
-    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
+    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
     branch_name: "test-openshift"
     #    local_clone_path: "/tmp/shivam.{{ ansible_date_time.iso8601 }}"
     date: "{{ lookup('pipe', 'date +%F') }}"
