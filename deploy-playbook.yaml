@@ -4,7 +4,7 @@
     github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
     branch_name: "test-openshift-ansible"
     date: "{{ lookup('pipe', 'date +%F') }}"
-  #gather_facts: no
+  gather_facts: no
   collections:
   - kubernetes.core
 
