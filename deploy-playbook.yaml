@@ -40,19 +40,20 @@
       name: podman
       state: present
   - name: create podman image
-    command: podman build -t ataloud-frontend:latest /tmp/shivam-{{ date }}/ataloudsite/
+    command: podman build -t quay.io/shivamquay/ataloud-frontend:latest /tmp/shivam-{{ date }}/ataloudsite/
 #    args:
 #      chdir: /opt/docker
 
   - name: Log in to the container registry
-    community.docker.docker_login:
-      registry_url: quay.io
-      username: test001
-      password: $hivam8470
+    command: podman login -u shivamquay -p 12345678 quay.io
+#    community.docker.docker_login:
+#      registry_url: quay.io
+#      username: test001
+#      password: $hivam8470
 
   - name: Push the httpd Docker image
     community.docker.docker_image_push:
-      name: test001/image-{{ date }}:latest
+      name: quay.io/shivamquay/ataloud-frontend:latest:latest
       
   - name: Make image public
     command: >
