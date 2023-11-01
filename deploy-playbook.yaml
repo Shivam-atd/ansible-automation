@@ -2,8 +2,7 @@
 - hosts: localhost
   vars:
     github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
-    branch_name: "test-openshift"
-    #    local_clone_path: "/tmp/shivam.{{ ansible_date_time.iso8601 }}"
+    branch_name: "test-openshift-ansible"
     date: "{{ lookup('pipe', 'date +%F') }}"
   #gather_facts: no
   collections:
@@ -13,19 +12,19 @@
   - name: Get a list of all pods from any namespace
     kubernetes.core.k8s_info:
       kind: Pod
-      namespace: aap-app
+      namespace: ansible-project
     register: pod_list
 
   - name: Create latest directory
-    shell: "mkdir -p /tmp/shivam.{{ date }}"
+    shell: "mkdir -p /tmp/shivam-{{ date }}"
 
   - name: permission to directory
-    shell: "chmod 777  /tmp/shivam.{{ date }}"
+    shell: "chmod 777  /tmp/shivam-{{ date }}"
 
   - name: Clone the repository
     git:
       repo: "{{ github_repo_url }}"
-      dest: "/tmp/shivam.{{ date }}"
+      dest: "/tmp/shivam-{{ date }}"
       version: "{{ branch_name }}"
     register: git_clone_result
   - name: Print git clone output
@@ -41,12 +40,21 @@
       name: podman
       state: present
         
-  - name: Build httpd Docker image
-    community.docker.docker_image:
+#  - name: Build httpd Docker image
+#    community.docker.docker_image:
+#      build:
+#        path: /tmp/shivam.{{ date }}   # Path to the Dockerfile and context
+#      name: test001/image-{{ date }}:latest  # Name for the Docker image
+  - name: Build a Docker formatted image for the ldapserver
+    containers.podman.podman_image:
+      name: ldapserver
+      path: "/tmp/shivam-{{ date }}/ataloudsite/"
+      force: true
       build:
-        path: /tmp/shivam.{{ date }}   # Path to the Dockerfile and context
-      name: test001/image-{{ date }}:latest  # Name for the Docker image
-
+        format: docker
+        cache: no
+        force_rm: yes
+    register: results
   - name: Log in to the container registry
     community.docker.docker_login:
       registry_url: quay.io
@@ -67,17 +75,17 @@
   - name: create k8s pod
     kubernetes.core.k8s:
       src: deployment/deployment.yaml
-      namespace: aap-app
+      namespace: ansible-project
       state: present
 
   - name: service create
     kubernetes.core.k8s:
       src: deployment/service.yaml
-      namespace: aap-app
+      namespace: ansible-project
       state: present
 
   - name: route create
     kubernetes.core.k8s:
       src: deployment/route.yaml
-      namespace: aap-app
+      namespace: ansible-project
       state: present
