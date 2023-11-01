@@ -51,16 +51,18 @@
 #      username: test001
 #      password: $hivam8470
 
-  - name: Push the httpd Docker image
-    community.docker.docker_image_push:
-      name: quay.io/shivamquay/ataloud-frontend:latest:latest
+  - name: Push the container image
+    command: podman push quay.io/shivamquay/ataloud-frontend:latest
+  
+  #  community.docker.docker_image_push:
+  #    name: quay.io/shivamquay/ataloud-frontend:latest:latest
       
   - name: Make image public
     command: >
       curl -H "Authorization: Bearer bzXyNpgsCYC2hM7UA3W0tec1SZzBhqvE6tlfIxY0"
       -X PUT
       -d '{"public": true}'
-      https://quay.io/api/v1/repository/test001/image-{{ date }}:latest
+      https://quay.io/shivamquay/ataloud-frontend:latest
 
   - name: create k8s pod
     kubernetes.core.k8s:
