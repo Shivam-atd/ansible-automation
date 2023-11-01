@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   vars:
-    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
+    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
 #    github_repo_url: "https://Ataloud-Projects:g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@github.com/Ataloud-Projects/ataloudsite.git"
     branch_name: "test-openshift-ansible"
     date: "{{ lookup('pipe', 'date +%F') }}"
