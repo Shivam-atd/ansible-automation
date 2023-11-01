@@ -39,22 +39,11 @@
     package:
       name: podman
       state: present
-        
-#  - name: Build httpd Docker image
-#    community.docker.docker_image:
-#      build:
-#        path: /tmp/shivam.{{ date }}   # Path to the Dockerfile and context
-#      name: test001/image-{{ date }}:latest  # Name for the Docker image
-  - name: Build a Docker formatted image for the ldapserver
-    containers.podman.podman_image:
-      name: ldapserver
-      path: "/tmp/shivam-{{ date }}/ataloudsite/"
-      force: true
-      build:
-        format: docker
-        cache: no
-        force_rm: yes
-    register: results
+  - name: create podman image
+    command: podman build -t ataloud-frontend:latest /tmp/shivam-{{ date }}/ataloudsite/
+#    args:
+#      chdir: /opt/docker
+
   - name: Log in to the container registry
     community.docker.docker_login:
       registry_url: quay.io
