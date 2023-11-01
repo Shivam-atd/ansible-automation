@@ -36,7 +36,11 @@
 #    ansible.builtin.copy:
 #      src: /tmp/ataloudsite # Source code directory
 #      dest: /var/www/html  # Destination directory in the remote host
-
+  - name: installing podman
+    package:
+      name: podman
+      state: present
+        
   - name: Build httpd Docker image
     community.docker.docker_image:
       build:
