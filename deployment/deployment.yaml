@@ -4,6 +4,7 @@ metadata:
   name: ataloud-frontend
   labels:
     app: ataloud-frontend
+  namespace: nexus  
 spec:
   replicas: 1
   selector:
