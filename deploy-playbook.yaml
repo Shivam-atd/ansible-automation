@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   vars:
-    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
+    github_repo_url: "https://Shivam-atd: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@github.com/Ataloud-Projects/ataloudsite.git"
 #    github_repo_url: "https://Ataloud-Projects:g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@github.com/Ataloud-Projects/ataloudsite.git"
     branch_name: "test-openshift-ansible"
     date: "{{ lookup('pipe', 'date +%F') }}"
@@ -12,59 +12,55 @@
   tasks:
   - name: Get a list of all pods from any namespace
     shell: oc get pod -n ansible-ataloud
-    #kubernetes.core.k8s_info:
-      #kind: Pod
-      #namespace: ansible-project
-    #register: pod_list
-
-  - name: Create latest directory
-    shell: "mkdir -p /tmp/shivam-{{ date }}"
-
-  - name: permission to directory
-    shell: "chmod 777  /tmp/shivam-{{ date }}"
-
-  - name: Clone the repository
-    git:
-      repo: "{{ github_repo_url }}"
-      dest: "/tmp/shivam-{{ date }}"
-      version: "{{ branch_name }}"
-    register: git_clone_result
-  - name: Print git clone output
+    register: pod_list
+  - name: print pod list
     debug:
-      var: git_clone_result
+      var: pod_list
 
-#  - name: Copy code to the remote host
-#    ansible.builtin.copy:
-#      src: /tmp/ataloudsite # Source code directory
-#      dest: /var/www/html  # Destination directory in the remote host
-  - name: installing podman
-    package:
-      name: podman
-      state: present
-  - name: create podman image
-    command: podman build -t quay.io/shivamquay/ataloud-frontend:latest /tmp/shivam-{{ date }}/ataloudsite/
-#    args:
-#      chdir: /opt/docker
+  #- name: Create latest directory
+  #  shell: "mkdir -p /tmp/shivam-{{ date }}"
+
+  #- name: permission to directory
+  #  shell: "chmod 777  /tmp/shivam-{{ date }}"
+
+  #- name: Clone the repository
+  #  git:
+  #    repo: "{{ github_repo_url }}"
+  #    dest: "/tmp/shivam-{{ date }}"
+  #    version: "{{ branch_name }}"
+  #  register: git_clone_result
+  #- name: Print git clone output
+  #  debug:
+  #    var: git_clone_result
+
+  #- name: installing podman
+  #  package:
+  #    name: docker-ce
+  #    state: present
+  #- name: create podman image
+  #  command: podman build -t quay.io/shivamquay/ataloud-frontend:latest /tmp/shivam-{{ date }}/ataloudsite/
 
   - name: Log in to the container registry
     command: podman login -u shivamquay -p 12345678 quay.io
+    register: login_output
+  - name: print login output
+    debug:
+      var: login_output
+      
 #    community.docker.docker_login:
 #      registry_url: quay.io
 #      username: test001
 #      password: $hivam8470
 
-  - name: Push the container image
-    command: podman push quay.io/shivamquay/ataloud-frontend:latest
-  
-  #  community.docker.docker_image_push:
-  #    name: quay.io/shivamquay/ataloud-frontend:latest:latest
+  #- name: Push the container image
+  #  command: podman push quay.io/shivamquay/ataloud-frontend:latest
       
-  - name: Make image public
-    command: >
-      curl -H "Authorization: Bearer bzXyNpgsCYC2hM7UA3W0tec1SZzBhqvE6tlfIxY0"
-      -X PUT
-      -d '{"public": true}'
-      https://quay.io/shivamquay/ataloud-frontend:latest
+  #- name: Make image public
+  #  command: >
+  #    curl -H "Authorization: Bearer bzXyNpgsCYC2hM7UA3W0tec1SZzBhqvE6tlfIxY0"
+  #    -X PUT
+  #    -d '{"public": true}'
+  #    https://quay.io/shivamquay/ataloud-frontend:latest
 
   - name: create k8s pod
     kubernetes.core.k8s:
