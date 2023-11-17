@@ -11,7 +11,7 @@
 
   tasks:
   - name: Get a list of all pods from any namespace
-    shell: oc get pod -n ansible-ataloud
+    shell: oc get pod -n nexus
     register: pod_list
   - name: print pod list
     debug:
